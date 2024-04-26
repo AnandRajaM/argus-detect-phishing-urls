@@ -424,38 +424,40 @@ def is_indexed(url): #26
 
 
 def extract_url(url):
-    results = []
-    results.append(isIP(url)) #1
-    results.append(LongURL(url)) #2
-    results.append(shortURL(url)) #3
-    results.append(check_symbol_at(url)) #4
-    results.append(check_redirecting(url))#5
-    results.append(check_prefix_suffix(url)) #6
-    results.append(check_subdomains(url)) #7
-    results.append(check_https(url)) #8
-    results.append(get_domain_registration_date(url)) #9
-    results.append(check_favicon_existence(url)) #10
-    results.append(check_nonstandard_ports(urlparse(url).netloc)) #11
-    results.append(check_domain_in_https_url(url, urlparse(url).netloc)) #12
-    results.append(is_request_url(url)) #13
-  
-    results.append(check_anchor_url(url)) #14
-    results.append(links_from_script_tags(url)) #15
-    results.append(check_server_side_handler(url)) #16
-    results.append(check_info_email(url)) #17
-    results.append(is_abnormal_url(url)) #18
-    results.append(check_url_forwarding(url)) #19
-    results.append(check_status_bar_cust(url)) #20
+    try:
+        results = []
+        results.append(isIP(url)) #1
+        results.append(LongURL(url)) #2
+        results.append(shortURL(url)) #3
+        results.append(check_symbol_at(url)) #4
+        results.append(check_redirecting(url))#5
+        results.append(check_prefix_suffix(url)) #6
+        results.append(check_subdomains(url)) #7
+        results.append(check_https(url)) #8
+        results.append(get_domain_registration_date(url)) #9
+        results.append(check_favicon_existence(url)) #10
+        results.append(check_nonstandard_ports(urlparse(url).netloc)) #11
+        results.append(check_domain_in_https_url(url, urlparse(url).netloc)) #12
+        results.append(is_request_url(url)) #13
+        results.append(check_anchor_url(url)) #14
+        results.append(links_from_script_tags(url)) #15
+        results.append(check_server_side_handler(url)) #16
+        results.append(check_info_email(url)) #17
+        results.append(is_abnormal_url(url)) #18
+        results.append(check_url_forwarding(url)) #19
+        results.append(check_status_bar_cust(url)) #20
+        results.append(check_right_click_disabled(url)) #21
+        results.append(check_popup_windows(url)) #22
+        results.append(check_iframe_redirection(url)) #23
+        results.append(get_domain_age((url))) #24
+        results.append(check_dns_records(url)) #25
+        results.append(is_indexed(url)) #26
+        
+        print("#2  Extracted Features for  "+ url)
+        results = [-1 if x is None else x for x in results]
+        print(results)
+        return results
     
-    results.append(check_right_click_disabled(url)) #21
-    results.append(check_popup_windows(url)) #22
-    results.append(check_iframe_redirection(url)) #23
-    results.append(get_domain_age((url))) #24
-    results.append(check_dns_records(url)) #25
-    results.append(is_indexed(url)) #26
-    
-    print("#2  Extracted Features for  "+ url)
-    print(results)
-    print(results.count(1))
-    print(results.count(-1))
-    return results
+    except Exception as e:
+        print("Error:", e)
+        pass
