@@ -1,6 +1,6 @@
 import re
 import ipaddress
-import whois
+import whois as whois
 import requests
 import socket
 from urllib.parse import urlparse
@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from tld import get_tld
 from datetime import datetime
 
+print("#1  Extracting Features")
 
 def isIP(url):  #1
         try:
@@ -17,11 +18,13 @@ def isIP(url):  #1
             ip = -1
         return ip
 
+
 def LongURL(url): #2
         if len(url) < 54:
             return -1           
         else:
             return 1 
+
 
 def shortURL(url): #3
         shortening_services = r"bit\.ly|goo\.gl|shorte\.st|go2l\.ink|x\.co|ow\.ly|t\.co|tinyurl|tr\.im|is\.gd|cli\.gs|" \
@@ -44,7 +47,7 @@ def check_symbol_at(url): #4
 
 def check_prefix_suffix(url): #5
     # Check if the URL contains prefixes or suffixes
-    return  1 if "-" or '.' in url else -1
+    return  1 if ("-" or '.') in url else -1
 
 def check_redirecting(url): #6
     # Check if the URL contains multiple forward slashes
@@ -57,23 +60,35 @@ def check_subdomains(url): #7
 
 def check_https(url): #8
     # Check if the URL uses HTTPS
-    return 1 if "https://" in url else -1
+    return -1 if "https://" in url else 1
 
-def get_domain_registration_date(domain_name): #9
+def get_domain_registration_date(url): #9
     try:
+        # Extract domain name from URL
+        domain_name = url.split("//")[-1].split("/")[0].split('?')[0].split(':')[0]
+        
         # Query WHOIS database
         domain_info = whois.whois(domain_name)
-        
+    
         # Check if creation date is available
         if domain_info.creation_date:
-            if domain_info.creation_date[0] > 200:
-                return 1
+            # Assuming creation_date is a list of datetime objects
+            if isinstance(domain_info.creation_date, list):
+                # Get the first creation date
+                creation_date = domain_info.creation_date[0]
+                if creation_date.year > 2020:
+                    return 1
             else:
-                return -1
+                if domain_info.creation_date.year > 2020:
+                    return 1
+                else:
+                    return -1
         else:
             return -1
     
-    except:
+    except Exception as e:
+        # Return an error code if there was an exception during the process
+        print("Error:", e)
         return -1
 
 
@@ -85,12 +100,14 @@ def check_favicon_existence(url): #10
         
         # Check if the response contains a favicon
         if 'favicon.ico' in response.text:
-            return 1
-        else:
             return -1
+        else:
+            return 1
     
     except Exception as e:
-        return str(e)
+        print("Error on favicon get:", e)
+        return 1
+    
     
 
 def check_nonstandard_ports(domain): #11
@@ -101,9 +118,9 @@ def check_nonstandard_ports(domain): #11
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.settimeout(2)  # Set timeout for connection attempt
                 s.connect((domain, port))
-                return 1
+                return -1
         except Exception as e:
-            return -1
+            return 1
         
     
 def check_domain_in_https_url(url, domain): #12
@@ -118,9 +135,9 @@ def check_domain_in_https_url(url, domain): #12
     
     # Check if the specified domain is included in the URL
     if domain in url_domain:
-        return 1
-    else:
         return -1
+    else:
+        return 1
     
 def is_request_url(url): #13
     # Define a regular expression pattern for request URLs
@@ -129,14 +146,14 @@ def is_request_url(url): #13
     
     # Check if the URL matches the pattern
     if re.match(request_url_pattern, url):
-        return -1
-    else:
         return 1
+    else:
+        return -1
 
 
 def check_anchor_url(url): #14
     # Check if anchor tags are present in the URL
-    return -1 if "#" in url else 1
+    return 1 if "#" in url else -1
 
 def links_from_script_tags(url): #15
     # Send a GET request to fetch the HTML content of the webpage
@@ -161,17 +178,18 @@ def links_from_script_tags(url): #15
                 links.extend(urls)
         
         if len(links)> 2:
-            return -1
-        else:
             return 1
+        else:
+            return -1
     else:
         # If the request was not successful, print an error message
         print("Error fetching URL:", response.status_code)
-        return []
+        return 1
     
 
 def check_server_side_handler(url): #16
     # Fetch the webpage
+    
     response = requests.get(url)
     
     # Check if request was successful
@@ -183,17 +201,21 @@ def check_server_side_handler(url): #16
         forms = soup.find_all('form')
         
         # Check each form for server-side handling
-        for form in forms:
-            action = form.get('action')
-            method = form.get('method')
-            
-            if action and method == 'post':
-                return -1
-            else:
-                return 1
+        if not forms:
+            return 1
+        else:
+            for form in forms:
+                action = form.get('action')
+                method = form.get('method')
+                
+                if action and method == 'post':
+                    return -1
+                else:
+                    return 1
 
     else:
         print(f"Failed to fetch webpage: {url}")
+        return 1
 
 
 
@@ -201,25 +223,25 @@ def check_server_side_handler(url): #16
 def check_info_email(url): #17
     # Check if an email address is present in the URL
     email_pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-    return -1 if re.search(email_pattern, url) else 1
+    return 1 if re.search(email_pattern, url) else -1
 
 
 def is_abnormal_url(url): #18
     # Check for long sequences of random characters
     if re.match(r'.*([a-zA-Z0-9])\1{8,}', url):
-        return -1
+        return 1
     
     # Check for unusual domain names or subdomains
     domain = urlparse(url).netloc
     tld = get_tld(url)
     if len(domain) > 50 or len(tld) > 10:
-        return -1
+        return 1
     
     # Check for excessive redirections
     try:
         response = requests.get(url, allow_redirects=False)
         if response.status_code in [301, 302] and 'Location' in response.headers:
-            return -1
+            return 1
     except Exception as e:
         pass
     
@@ -231,23 +253,23 @@ def is_abnormal_url(url): #18
     '.gq', '.icu', '.ooo', '.mobi', '.fun', '.buzz', '.kim'
 ]  
     if tld in suspicious_tlds:
-        return -1
+        return 1
     
     # Check for unusual protocols
     if not url.startswith('http://') and not url.startswith('https://'):
-        return -1
+        return 1
     
-    # If none of the above conditions match, return 1 (not abnormal)
-    return 1
+    # If none of the above conditions match, return -1 (not abnormal)
+    return -1
 
 def check_url_forwarding(url): #19
     try:
         response = requests.get(url, allow_redirects=True)
         final_url = response.url
         if final_url != url:
-            return -1
-        else:
             return 1
+        else:
+            return -1
     except requests.RequestException as e:
         print("Error:", e)
 
@@ -264,13 +286,15 @@ def check_status_bar_cust(url): #20
             # Check for customizations of the browser status bar in the HTML content
             status_bar_pattern = r'onmouseover=["\'](.*?)["\']'
             
-            return -1 if re.search(status_bar_pattern, html_content) else 1
+            return 1 if re.search(status_bar_pattern, html_content) else -1
         else:
             # Return an error code if the request was not successful
             print("Error fetching URL:", response.status_code)
+            return 1
     except Exception as e:
         # Return an error code if there was an exception during the process
         print("Error:", e)
+        return 1
 
 
 
@@ -287,11 +311,13 @@ def check_right_click_disabled(url): #21
         scripts = soup.find_all('script')
         for script in scripts:
             if "oncontextmenu" in script.get_text():
-                return -1 # Right-click seems to be disabled
-        return 1  # Right-click doesn't seem to be disabled
+                return 1 # Right-click seems to be disabled
+            else:
+                return -1
+        return -1  # Right-click doesn't seem to be disabled
     except requests.exceptions.RequestException as e:
         print("Error:", e)
-        return None  # Return None in case of error
+        return 1  # Return None in case of error
 
 
 
@@ -310,11 +336,11 @@ def check_popup_windows(url): #22
         ]
         for pattern in patterns:
             if re.search(pattern, response.text):
-                return -1  # Popup windows seem to be used
-        return 1  # No indications of popup windows found
+                return 1  # Popup windows seem to be used
+        return -1  # No indications of popup windows found
     except requests.exceptions.RequestException as e:
         print("Error:", e)
-        return None  # Return None in case of error
+        return 1 
 
 
 def check_iframe_redirection(url): #23
@@ -331,22 +357,26 @@ def check_iframe_redirection(url): #23
         for iframe in iframes:
             src = iframe.get('src')
             if src:  # Check if the iframe has a 'src' attribute
-                return -1 # Iframe redirection seems to be used
-        return 1  # No iframes found or none with 'src' attribute
+                return 1 
+            else:
+                return -1# Iframe redirection seems to be used
+        return -1  # No iframes found or none with 'src' attribute
     except requests.exceptions.RequestException as e:
         print("Error:", e)
-        return None  # Return None in case of error
+        return 1  # Return None in case of error
     
 
-
-def get_domain_age(domain_name): #24
+def get_domain_age(url): #24
     try:
+        # Extract domain name from URL
+        domain_name = url.split("//")[-1].split("/")[0].split('?')[0].split(':')[0]
+
         # Perform a WHOIS lookup for the domain
         domain_info = whois.whois(domain_name)
 
         # Extract the creation date of the domain
         creation_date = domain_info.creation_date
-
+        
         # If creation_date is a list, take the first element
         if isinstance(creation_date, list):
             creation_date = creation_date[0]
@@ -356,24 +386,76 @@ def get_domain_age(domain_name): #24
             age = (datetime.now() - creation_date).days
             return -1 if age < 200 else 1
         else:
-            return -1  # Unable to determine the creation date
+            return 1  # Unable to determine the creation date
     except Exception as e:
         print("Error:", e)
         return None  # Return None in case of error
+
+
+def check_dns_records(url): #25
     
-
-
-def check_dns_records(domain_name):
     try:
+        # Extract domain name from URL
+        domain_name = url.split("//")[-1].split("/")[0].split('?')[0].split(':')[0]
+        
         # Perform DNS lookup for the domain
         ip_addresses = socket.gethostbyname_ex(domain_name)
 
         if ip_addresses:
-            return 1  # DNS records exist for the domain
+            return -1  # DNS records exist for the domain
         else:
-            return -1  # No DNS records found for the domain
+            return 1  # No DNS records found for the domain
     except Exception as e:
         print("Error:", e)
         return None  # Return None in case of error
-    
 
+
+def is_indexed(url): #26
+    try:
+        response = requests.get(f"https://www.google.com/search?q=site:{url}")
+        if response.status_code == 200:
+            return -1
+        else:
+            return 1
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
+
+
+
+
+def extract_url(url):
+    results = []
+    results.append(isIP(url)) #1
+    results.append(LongURL(url)) #2
+    results.append(shortURL(url)) #3
+    results.append(check_symbol_at(url)) #4
+    results.append(check_redirecting(url))#5
+    results.append(check_prefix_suffix(url)) #6
+    results.append(check_subdomains(url)) #7
+    results.append(check_https(url)) #8
+    results.append(get_domain_registration_date(url)) #9
+    results.append(check_favicon_existence(url)) #10
+    results.append(check_nonstandard_ports(urlparse(url).netloc)) #11
+    results.append(check_domain_in_https_url(url, urlparse(url).netloc)) #12
+    results.append(is_request_url(url)) #13
+  
+    results.append(check_anchor_url(url)) #14
+    results.append(links_from_script_tags(url)) #15
+    results.append(check_server_side_handler(url)) #16
+    results.append(check_info_email(url)) #17
+    results.append(is_abnormal_url(url)) #18
+    results.append(check_url_forwarding(url)) #19
+    results.append(check_status_bar_cust(url)) #20
+    
+    results.append(check_right_click_disabled(url)) #21
+    results.append(check_popup_windows(url)) #22
+    results.append(check_iframe_redirection(url)) #23
+    results.append(get_domain_age((url))) #24
+    results.append(check_dns_records(url)) #25
+    results.append(is_indexed(url)) #26
+    
+    print("#2  Extracted Features for  "+ url)
+    print(results)
+    print(results.count(1))
+    print(results.count(-1))
+    return results
