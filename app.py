@@ -7,13 +7,13 @@ import url_trust_index as uti
 import numpy as np
 import joblib
 
-loaded_svm_model = joblib.load('./phising-urls/svm_phishing_model.pkl')
-loaded_decision_tree_model = joblib.load('./phising-urls/decision_tree_phishing_model.pkl')
-loaded_random_forest_model = joblib.load('./phising-urls/random_forest_phishing_model.pkl')
-loaded_xgboost_model = joblib.load('./phising-urls/XGBoost_phishing_model.pkl')
-loaded_logistic_regression_model = joblib.load('./phising-urls/linear_regression_phishing_model.pkl')
+loaded_svm_model = joblib.load('svm_phishing_model.pkl')
+loaded_decision_tree_model = joblib.load('decision_tree_phishing_model.pkl')
+loaded_random_forest_model = joblib.load('random_forest_phishing_model.pkl')
+loaded_xgboost_model = joblib.load('XGBoost_phishing_model.pkl')
+loaded_logistic_regression_model = joblib.load('linear_regression_phishing_model.pkl')
 
-loaded_model = tensorflow.keras.models.load_model('./phising-urls/phishing_model.h5')
+loaded_model = tensorflow.keras.models.load_model('phishing_model.h5')
 
 st.title('Phishing URL Checker')
 
