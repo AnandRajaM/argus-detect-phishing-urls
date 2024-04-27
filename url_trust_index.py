@@ -71,7 +71,7 @@ def calculate_uti(url):
     endpoint = 'getPageRank'
     url = base_url + endpoint
     params = {'domains[]': domain}
-    headers = {'API-OPR': 'API-KEY'}
+    headers = {'API-OPR': 'API-KEY'}  #find key at https://www.domcop.com/openpagerank/auth/signup
     try:
         response = requests.get(url, params=params, headers=headers)
         if response.status_code == 200:
