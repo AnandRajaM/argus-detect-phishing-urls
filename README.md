@@ -14,12 +14,12 @@ Dataset can be found [here](https://www.kaggle.com/datasets/eswarchandt/phishing
 
 Models implemented in the project:
 
-Support Vector Machine (SVM)
-Random Forest
-Decision Tree
-XGBoost
-Linear Regression
-Neural Networks
+* Support Vector Machine (SVM)
+* Random Forest
+* Decision Tree
+* XGBoost
+* Linear Regression
+* Neural Networks
 
 
 ## Screenshots
