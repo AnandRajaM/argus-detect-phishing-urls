@@ -82,7 +82,7 @@ if st.button('Check'):
         except:
             pass
         
-        end_time = time.time()  # Record the end time
+        end_time = time.time()  
         elapsed_time = end_time - start_time
         progress_text.write(f":rainbow[Time taken to check the URL: {elapsed_time:.2f} seconds]")
         if uti >= 7:
@@ -112,6 +112,5 @@ def stream_data():
     st.write('[Learn more on Wikipedia](https://en.wikipedia.org/wiki/Phishing)')
 
 
-# Button to trigger displaying more information
 if st.button("Learn More"):
     stream_data()
