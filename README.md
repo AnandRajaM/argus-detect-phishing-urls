@@ -53,7 +53,7 @@ streamlit run app.py
 
 ## URL Trust Index
 
-In addition to the machine learning models, we've introduced a new feature called the URL Trust Index (UTI). The URL Trust Index provides a score between 1 and 10, signifying the trustworthiness of a website. This score is calculated using various parameters, including SSL certificate information, SSL certificate validation date, page rank, HTTPS usage, and more.
+In addition to the machine learning models, we've introduced a new feature called the URL Trust Index (UTI). The URL Trust Index provides a score between -10 and 10, signifying the trustworthiness of a website. This score is calculated using various parameters, including SSL certificate information, SSL certificate validation date, page rank, HTTPS usage, and more.
 ## Results
 We've thoroughly evaluated the performance of each model using metrics like accuracy, precision, recall, F1-score, Cohen's Kappa, and more. Additionally, visualizations such as confusion matrices, decision boundaries, ROC curves, etc., are provided for each model. You can find these evaluation metrics and visualizations in the respective Jupyter Notebooks (*.ipynb) for each model.
 ## Sample Dataset
