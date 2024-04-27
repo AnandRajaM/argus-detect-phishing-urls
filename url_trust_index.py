@@ -71,7 +71,7 @@ def calculate_uti(url):
     endpoint = 'getPageRank'
     url = base_url + endpoint
     params = {'domains[]': domain}
-    headers = {'API-OPR': 'cw8w8gc4048s08sskc40gos80004040kcwkkkswc'}
+    headers = {'API-OPR': 'API-KEY'}
     try:
         response = requests.get(url, params=params, headers=headers)
         if response.status_code == 200:
