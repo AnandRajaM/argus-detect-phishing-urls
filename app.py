@@ -1,7 +1,6 @@
 import streamlit as st
 import time
 import tensorflow
-from tensorflow.keras.models import load_model
 from concurrent.futures import ThreadPoolExecutor 
 import feature_extraction as fe
 import url_trust_index as uti
@@ -14,7 +13,7 @@ loaded_random_forest_model = joblib.load('./phising-urls/random_forest_phishing_
 loaded_xgboost_model = joblib.load('./phising-urls/XGBoost_phishing_model.pkl')
 loaded_logistic_regression_model = joblib.load('./phising-urls/linear_regression_phishing_model.pkl')
 
-loaded_model = load_model('./phising-urls/phishing_model.h5')
+loaded_model = tensorflow.keras.models.load_model('./phising-urls/phishing_model.h5')
 
 st.title('Phishing URL Checker')
 
