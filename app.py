@@ -1,7 +1,10 @@
 import streamlit as st
 import time
+import tensorflow
 from tensorflow.keras.models import load_model
+from concurrent.futures import ThreadPoolExecutor 
 import feature_extraction as fe
+import url_trust_index as uti
 import numpy as np
 import joblib
 
@@ -29,7 +32,8 @@ option = st.selectbox(
 if st.button('Check'):
     start_time = time.time()  # Record the start time
     progress_text = st.empty()  # Placeholder for displaying elapsed time
-    
+    uti_text = st.empty()
+
     with st.spinner('Checking the URL...'):
         if not url:
             st.warning('Please enter a URL to check')
@@ -39,7 +43,12 @@ if st.button('Check'):
             exit()
             
         try:
-            extracted_parameters = fe.extract_url(url)
+            with ThreadPoolExecutor() as executor:
+                extracted_parameters = executor.submit(fe.extract_url, url)
+                uti = executor.submit(uti.calculate_uti, url)
+            extracted_parameters = extracted_parameters.result()
+            uti = uti.result()
+            print(uti)
         except:
             st.error('Error in Extraction of features due to Exception')
             exit()
@@ -56,30 +65,33 @@ if st.button('Check'):
         if option == 'Linear Regression':
             prediction = loaded_logistic_regression_model.predict([extracted_parameters])
         
-        if prediction[0] == 0:
-            st.success('The URL is Legitimate')
-            st.balloons()
-        else:
-            st.error('The URL is Phishing')
-            
-
         if option == 'Neural Network':
-            prediction = loaded_model.predict(input_data)
-            prediction = (prediction >= 0.5).astype(int)
-            print(prediction)
-            if prediction[0][0] == 0:
+            prediction_neural = loaded_model.predict(input_data)
+            prediction_neural = (prediction_neural >= 0.5).astype(int)
+            print(prediction_neural)
+            if prediction_neural[0][0] == 0:
                 st.success('The URL is Legitimate')
                 st.balloons()
             else:
                 st.error('The URL is Phishing')
-
-        
-        
-        
+        try:
+            if prediction[0] == 0:
+                st.success('The URL is Legitimate')
+                st.balloons()
+            else:
+                st.error('The URL is Phishing')
+        except:
+            pass
         
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
         progress_text.write(f":rainbow[Time taken to check the URL: {elapsed_time:.2f} seconds]")
+        if uti >= 7:
+            uti_text.write('URL Trust Index: :green[{}]'.format(uti))
+        elif uti >= 5.5 and uti < 7:
+            uti_text.write('URL Trust Index: :yellow[{}]'.format(uti))
+        else:
+            uti_text.write('URL Trust Index: :red[{}]'.format(uti))
 
 
 st.header('What is Phishing URL?')
