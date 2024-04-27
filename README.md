@@ -49,6 +49,7 @@ streamlit run app.py
 
 #### 4. Done! Now Input a URL , Choose your model , and let the models do its magic! ✨
 
+**Please remember to input API Key for OpenPage Rank , you can find a API Key @ https://www.domcop.com/openpagerank/auth/signup
 
 ## URL Trust Index
 
