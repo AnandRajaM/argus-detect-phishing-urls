@@ -2,6 +2,7 @@ from tensorflow.keras.models import load_model
 import feature_extraction as fe
 import numpy as np
 
+# Testing the model with a sample URL
 try:
     extracted_parameters = fe.extract_url("https://www.apple.com")
 except:
