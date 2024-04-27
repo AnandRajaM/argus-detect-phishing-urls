@@ -25,6 +25,7 @@ Models implemented in the project:
 ## Screenshots
 ![App Screenshot](https://github.com/AnandRajaM/phishing-urls/blob/main/images/landing.png)
 ![App Screenshot](https://github.com/AnandRajaM/phishing-urls/blob/main/images/prediction.png)
+![App Screenshot](https://github.com/AnandRajaM/phishing-urls/blob/main/images/phishing.png)
 
 
 
